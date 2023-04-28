@@ -1,11 +1,7 @@
-import {Client} from "discord.js";
+import {Client, GatewayDispatchEvents} from "@discordjs/core";
 
-export default (client: Client): void => {
-  client.on("ready", async () => {
-    if (!client.user || !client.application) {
-      return;
-    }
-
-    console.log(`${client.user.username} is online`);
+export default function ready(client: Client): void {
+  client.once(GatewayDispatchEvents.Ready, () => {
+    console.log(`xusi is online`);
   });
-};
+}
