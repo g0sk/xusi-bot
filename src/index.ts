@@ -1,4 +1,3 @@
-import dotenv from "dotenv";
 import {
   Client,
   GatewayDispatchEvents,
@@ -6,24 +5,14 @@ import {
 } from "@discordjs/core";
 import {REST} from "@discordjs/rest";
 import {WebSocketManager} from "@discordjs/ws";
-
-dotenv.config();
+import {env} from "./env";
 
 console.log("Starting bot...");
 
-let token: string;
-
-if (!process.env.DISCORD_TOKEN) {
-  console.error("DISCORD_TOKEN not found in .env file");
-  throw new Error("Environment variables not provided");
-} else {
-  token = process.env.DISCORD_TOKEN;
-}
-
 // Create REST and WebSocket managers directly
-const rest = new REST({version: "10"}).setToken(token);
+const rest = new REST({version: "10"}).setToken(env.DISCORD_TOKEN);
 const ws = new WebSocketManager({
-  token,
+  token: env.DISCORD_TOKEN,
   intents:
     GatewayIntentBits.GuildMessages |
     GatewayIntentBits.MessageContent |
@@ -32,18 +21,7 @@ const ws = new WebSocketManager({
 });
 
 // Create a client to emit relevant events.
-const client = new Client({rest, ws});
-
-// Listen for interactions
-// Each event contains an `api` prop along with the event data that allows you to interface with the Discord REST API
-
-client.on(GatewayDispatchEvents.MessageCreate, async ({api, data}) => {
-  if (data.content !== "ping") {
-    return;
-  }
-
-  await api.channels.createMessage(data.channel_id, {content: "pong"});
-});
+const client: Client = new Client({rest, ws});
 
 client.on(GatewayDispatchEvents.MessageCreate, ({data: interaction, api}) => {
   console.log(
